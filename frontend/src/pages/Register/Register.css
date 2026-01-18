@@ -1,0 +1,298 @@
+/* ===============================
+   Register.css – Ultra Premium Indigo UI
+   =============================== */
+
+/* ===============================
+   Page Background
+   =============================== */
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(at top right, #6366f1 0%, transparent 40%),
+    radial-gradient(at bottom left, #8b5cf6 0%, transparent 45%),
+    linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating blurred blobs */
+.register-container::before,
+.register-container::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: float 14s ease-in-out infinite;
+}
+
+.register-container::before {
+  width: 440px;
+  height: 440px;
+  background: #6366f1;
+  top: -140px;
+  right: -140px;
+}
+
+.register-container::after {
+  width: 400px;
+  height: 400px;
+  background: #8b5cf6;
+  bottom: -120px;
+  left: -120px;
+  animation-delay: 4s;
+}
+
+/* ===============================
+   Register Card
+   =============================== */
+
+.register-form {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding: 3rem 3rem 2.5rem;
+  border-radius: 28px;
+
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.65));
+
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+/* Gradient glowing border */
+.register-form::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 28px;
+  padding: 1px;
+  background: linear-gradient(135deg,
+      #6366f1,
+      #8b5cf6,
+      #4f46e5);
+  mask: linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ===============================
+   Animations
+   =============================== */
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(30px, 30px);
+  }
+}
+
+/* ===============================
+   Title
+   =============================== */
+
+.register-form h2 {
+  text-align: center;
+  margin-bottom: 2.3rem;
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.6px;
+}
+
+/* ===============================
+   Form Elements
+   =============================== */
+
+.form-group {
+  margin-bottom: 1.6rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  font-size: 1rem;
+  border-radius: 14px;
+  border: 2px solid transparent;
+
+  background:
+    linear-gradient(#f8fafc, #f8fafc) padding-box,
+    linear-gradient(135deg, #e2e8f0, #c7d2fe) border-box;
+
+  color: #1e293b;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #6366f1, #8b5cf6) border-box;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15);
+}
+
+/* ===============================
+   Input Icons
+   =============================== */
+
+.icon-input {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: #6366f1;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* SPACE FOR ICONS - FIXED TO PREVENT HIDING DETAILS */
+.icon-input input,
+.icon-input select {
+  padding-left: 52px !important;
+  padding-right: 52px !important;
+}
+
+/* ===============================
+   Show / Hide Password
+   =============================== */
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #64748b;
+  transition: color 0.2s ease;
+  z-index: 5;
+}
+
+.toggle-password:hover {
+  color: #4f46e5;
+}
+
+/* ===============================
+   Button
+   =============================== */
+
+.btn {
+  width: 100%;
+  margin-top: 1.2rem;
+  padding: 1.05rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg,
+      #6366f1,
+      #4f46e5,
+      #4338ca);
+
+  box-shadow:
+    0 12px 28px rgba(79, 70, 229, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 45px rgba(79, 70, 229, 0.55);
+}
+
+/* ===============================
+   Footer Text
+   =============================== */
+
+.register-form p {
+  margin-top: 1.8rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.register-form a {
+  color: #6366f1;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.register-form a:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+/* ===============================
+   Mobile
+   =============================== */
+
+@media (max-width: 480px) {
+  .register-form {
+    padding: 2.2rem;
+    margin: 1rem;
+  }
+
+  .register-form h2 {
+    font-size: 1.9rem;
+  }
+}
