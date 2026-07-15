@@ -20,19 +20,33 @@ const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
+const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(origin => origin.trim()).filter(Boolean);
+
+const corsOptions = {
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'bypass-tunnel-reminder']
+};
+
+const corsOriginHandler = (origin, callback) => {
+  if (!origin || allowedOrigins.includes(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  callback(new Error('Not allowed by CORS'));
+};
+
 // Connect to MongoDB
 connectDB();
 
 // Middleware
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'bypass-tunnel-reminder']
-}));
+app.use(cors({ ...corsOptions, origin: corsOriginHandler }));
 
 // Handle OPTIONS preflight requests explicitly
-app.options('*', cors());
+app.options('*', cors({ ...corsOptions, origin: corsOriginHandler }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
