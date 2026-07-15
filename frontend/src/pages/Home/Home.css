@@ -52,6 +52,20 @@
   justify-content: center;
   overflow: hidden;
   animation: fadeInDown 0.8s ease-out;
+  transition: min-height 0.3s ease, transform 0.3s ease;
+}
+
+.hero-scrolled {
+  min-height: 520px;
+}
+
+.hero-scrolled .hero-content {
+  padding: 2rem 2rem;
+  transform: scale(0.97);
+}
+
+.hero-scrolled .hero-title {
+  font-size: 3rem;
 }
 
 .hero-background {

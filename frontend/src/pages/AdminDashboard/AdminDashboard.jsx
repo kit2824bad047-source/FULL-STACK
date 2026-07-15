@@ -17,10 +17,19 @@ function AdminDashboard() {
   const [editFormData, setEditFormData] = useState({ name: '', email: '', companyName: '' });
 
   useEffect(() => {
-    fetchStats();
-    if (activeTab === 'students') fetchStudents();
-    if (activeTab === 'recruiters') fetchRecruiters();
-    if (activeTab === 'jobs') fetchJobs();
+    const loadDashboardData = async () => {
+      setLoading(true);
+      try {
+        await fetchStats();
+        if (activeTab === 'students') await fetchStudents();
+        if (activeTab === 'recruiters') await fetchRecruiters();
+        if (activeTab === 'jobs') await fetchJobs();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, [activeTab]);
 
   const fetchStats = async () => {
@@ -35,19 +44,16 @@ function AdminDashboard() {
   const fetchStudents = async () => {
     const res = await api.get('/admin/students');
     setStudents(res.data);
-    setLoading(false);
   };
 
   const fetchRecruiters = async () => {
     const res = await api.get('/admin/recruiters');
     setRecruiters(res.data);
-    setLoading(false);
   };
 
   const fetchJobs = async () => {
     const res = await api.get('/admin/jobs');
     setJobs(res.data);
-    setLoading(false);
   };
 
   const handleDeleteUser = async (userId, userType) => {
@@ -122,120 +128,126 @@ function AdminDashboard() {
           <p>Control system data and monitor placement activities</p>
         </header>
 
-        {activeTab === 'overview' && (
-          <div className="admin-overview">
-            <div className="admin-stats-grid">
-              <div className="admin-stat-card">
-                <span className="stat-icon">👨‍🎓</span>
-                <div className="stat-info">
-                  <h3>{stats.totalStudents}</h3>
-                  <p>Total Students</p>
+        {loading ? (
+          <div className="admin-loading-state">Loading dashboard data...</div>
+        ) : (
+          <>
+            {activeTab === 'overview' && (
+              <div className="admin-overview">
+                <div className="admin-stats-grid">
+                  <div className="admin-stat-card">
+                    <span className="stat-icon">👨‍🎓</span>
+                    <div className="stat-info">
+                      <h3>{stats.totalStudents}</h3>
+                      <p>Total Students</p>
+                    </div>
+                  </div>
+                  <div className="admin-stat-card">
+                    <span className="stat-icon">🏢</span>
+                    <div className="stat-info">
+                      <h3>{stats.totalRecruiters}</h3>
+                      <p>Registered Companies</p>
+                    </div>
+                  </div>
+                  <div className="admin-stat-card">
+                    <span className="stat-icon">📋</span>
+                    <div className="stat-info">
+                      <h3>{stats.totalJobs}</h3>
+                      <p>Active Job Postings</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-welcome-card">
+                  <h2>System Health 🟢</h2>
+                  <p>Everything is running smoothly. Use the side tabs to manage users and content.</p>
                 </div>
               </div>
-              <div className="admin-stat-card">
-                <span className="stat-icon">🏢</span>
-                <div className="stat-info">
-                  <h3>{stats.totalRecruiters}</h3>
-                  <p>Registered Companies</p>
-                </div>
+            )}
+
+            {activeTab === 'students' && (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Joined</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.map(s => (
+                      <tr key={s._id}>
+                        <td>{s.name}</td>
+                        <td>{s.email}</td>
+                        <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+                        <td className="admin-actions">
+                          <button className="admin-edit-btn" onClick={() => openEditModal(s, 'student')}>Edit</button>
+                          <button className="admin-delete-btn" onClick={() => handleDeleteUser(s._id, 'student')}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className="admin-stat-card">
-                <span className="stat-icon">📋</span>
-                <div className="stat-info">
-                  <h3>{stats.totalJobs}</h3>
-                  <p>Active Job Postings</p>
-                </div>
+            )}
+
+            {activeTab === 'recruiters' && (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Person</th>
+                      <th>Company</th>
+                      <th>Email</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recruiters.map(r => (
+                      <tr key={r._id}>
+                        <td>{r.name}</td>
+                        <td><strong>{r.companyName}</strong></td>
+                        <td>{r.email}</td>
+                        <td className="admin-actions">
+                          <button className="admin-edit-btn" onClick={() => openEditModal(r, 'recruiter')}>Edit</button>
+                          <button className="admin-delete-btn" onClick={() => handleDeleteUser(r._id, 'recruiter')}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
+            )}
 
-            <div className="admin-welcome-card">
-              <h2>System Health 🟢</h2>
-              <p>Everything is running smoothly. Use the side tabs to manage users and content.</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'students' && (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map(s => (
-                  <tr key={s._id}>
-                    <td>{s.name}</td>
-                    <td>{s.email}</td>
-                    <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-                    <td className="admin-actions">
-                      <button className="admin-edit-btn" onClick={() => openEditModal(s, 'student')}>Edit</button>
-                      <button className="admin-delete-btn" onClick={() => handleDeleteUser(s._id, 'student')}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {activeTab === 'recruiters' && (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Person</th>
-                  <th>Company</th>
-                  <th>Email</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recruiters.map(r => (
-                  <tr key={r._id}>
-                    <td>{r.name}</td>
-                    <td><strong>{r.companyName}</strong></td>
-                    <td>{r.email}</td>
-                    <td className="admin-actions">
-                      <button className="admin-edit-btn" onClick={() => openEditModal(r, 'recruiter')}>Edit</button>
-                      <button className="admin-delete-btn" onClick={() => handleDeleteUser(r._id, 'recruiter')}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {activeTab === 'jobs' && (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Company</th>
-                  <th>Posted</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.map(j => (
-                  <tr key={j._id}>
-                    <td>{j.title}</td>
-                    <td>{j.company?.companyName || 'N/A'}</td>
-                    <td>{new Date(j.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <button className="admin-delete-btn" onClick={() => handleDeleteJob(j._id)}>Remove</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {activeTab === 'jobs' && (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Company</th>
+                      <th>Posted</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobs.map(j => (
+                      <tr key={j._id}>
+                        <td>{j.title}</td>
+                        <td>{j.company?.companyName || 'N/A'}</td>
+                        <td>{new Date(j.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          <button className="admin-delete-btn" onClick={() => handleDeleteJob(j._id)}>Remove</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -104,7 +104,7 @@ function Home() {
   return (
     <div className="home">
       {/* Hero Section */}
-      <section className="hero">
+      <section className={`hero${scrolled ? ' hero-scrolled' : ''}`}>
         <div className="hero-background">
           <div className="animated-bg"></div>
           <div className="floating-shapes">
