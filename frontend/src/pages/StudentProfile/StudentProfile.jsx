@@ -120,7 +120,7 @@ function StudentProfile() {
           <div className="profile-sidebar">
             <div className="avatar-wrapper" onClick={handleImageClick}>
               {profile.profilePicture ? (
-                <img src={`http://localhost:5000${profile.profilePicture}`} alt="Profile" className="profile-image" />
+                <img src={`${process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:5000'}${profile.profilePicture}`} alt="Profile" className="profile-image" />
               ) : (
                 <span className="avatar-emoji">👤</span>
               )}

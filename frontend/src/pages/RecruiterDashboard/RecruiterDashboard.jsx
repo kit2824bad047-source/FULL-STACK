@@ -38,22 +38,8 @@ function RecruiterDashboard() {
   }, []);
 
   return (
-    <div className="recruiter-dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <h2>Recruiter Pro</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/recruiter-dashboard" className="nav-item active">📊 Dashboard</Link>
-          <Link to="/recruiter/jobs" className="nav-item">📝 Post Jobs</Link>
-          <Link to="/recruiter/applicants" className="nav-item">👥 Applicants</Link>
-          <Link to="/recruiter/profile" className="nav-item">🏢 Company</Link>
-          <Link to="/recruiter/stats" className="nav-item">📈 Analytics</Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main-content">
-        <header className="dashboard-top-bar">
+    <>
+      <header className="dashboard-top-bar">
           <div className="welcome-text">
             <h1>Welcome back, Recruiter!</h1>
             <p>Here's what's happening with your recruitment today.</p>
@@ -103,8 +89,7 @@ function RecruiterDashboard() {
             <div className="card-arrow">→</div>
           </Link>
         </section>
-      </main>
-    </div>
+    </>
   );
 }
 

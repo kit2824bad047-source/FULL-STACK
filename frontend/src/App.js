@@ -22,6 +22,10 @@ import StudentStats from './pages/StudentStats/StudentStats';
 import RecruiterApplicants from './pages/RecruiterApplicants/RecruiterApplicants';
 import RecruiterStats from './pages/RecruiterStats/RecruiterStats';
 
+// Layouts
+import StudentLayout from './components/Layout/StudentLayout';
+import RecruiterLayout from './components/Layout/RecruiterLayout';
+
 function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -34,21 +38,25 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             {/* Student Routes */}
-            <Route path="/student-dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
-            <Route path="/student/jobs" element={<ProtectedRoute><JobBrowser /></ProtectedRoute>} />
-            <Route path="/student/profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
-            <Route path="/student/applications" element={<ProtectedRoute><StudentApplications /></ProtectedRoute>} />
-            <Route path="/student/stats" element={<ProtectedRoute><StudentStats /></ProtectedRoute>} />
+            <Route element={<ProtectedRoute allowedRoles={['student']}><StudentLayout /></ProtectedRoute>}>
+              <Route path="/student-dashboard" element={<StudentDashboard />} />
+              <Route path="/student/jobs" element={<JobBrowser />} />
+              <Route path="/student/profile" element={<StudentProfile />} />
+              <Route path="/student/applications" element={<StudentApplications />} />
+              <Route path="/student/stats" element={<StudentStats />} />
+            </Route>
 
             {/* Recruiter Routes */}
-            <Route path="/recruiter-dashboard" element={<ProtectedRoute><RecruiterDashboard /></ProtectedRoute>} />
-            <Route path="/recruiter/jobs" element={<ProtectedRoute><RecruiterJobs /></ProtectedRoute>} />
-            <Route path="/recruiter/profile" element={<ProtectedRoute><RecruiterProfile /></ProtectedRoute>} />
-            <Route path="/recruiter/applicants" element={<ProtectedRoute><RecruiterApplicants /></ProtectedRoute>} />
-            <Route path="/recruiter/stats" element={<ProtectedRoute><RecruiterStats /></ProtectedRoute>} />
+            <Route element={<ProtectedRoute allowedRoles={['recruiter']}><RecruiterLayout /></ProtectedRoute>}>
+              <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
+              <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
+              <Route path="/recruiter/profile" element={<RecruiterProfile />} />
+              <Route path="/recruiter/applicants" element={<RecruiterApplicants />} />
+              <Route path="/recruiter/stats" element={<RecruiterStats />} />
+            </Route>
 
             {/* Admin Routes */}
-            <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />

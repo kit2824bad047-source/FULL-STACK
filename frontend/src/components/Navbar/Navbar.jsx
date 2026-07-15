@@ -29,7 +29,7 @@ function Navbar() {
           {token && (
             <>
               <li>
-                <Link to={user?.userType === 'recruiter' ? '/recruiter-dashboard' : '/student-dashboard'}>
+                <Link to={user?.userType === 'admin' ? '/admin-dashboard' : user?.userType === 'recruiter' ? '/recruiter-dashboard' : '/student-dashboard'}>
                   Dashboard
                 </Link>
               </li>

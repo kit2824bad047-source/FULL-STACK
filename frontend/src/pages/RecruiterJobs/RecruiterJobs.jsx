@@ -82,22 +82,8 @@ function RecruiterJobs() {
   };
 
   return (
-    <div className="recruiter-dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <h2>Recruiter Pro</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/recruiter-dashboard" className="nav-item">📊 Dashboard</Link>
-          <Link to="/recruiter/jobs" className="nav-item active">📝 Post Jobs</Link>
-          <Link to="/recruiter/applicants" className="nav-item">👥 Applicants</Link>
-          <Link to="/recruiter/profile" className="nav-item">🏢 Company</Link>
-          <Link to="/recruiter/stats" className="nav-item">📈 Analytics</Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main-content">
-        <div className="jobs-header">
+    <>
+      <div className="jobs-header">
           <div className="header-title">
             <h1>Manage Job Postings</h1>
             <p>Create and manage your job listings.</p>
@@ -296,8 +282,7 @@ function RecruiterJobs() {
             </div>
           </>
         )}
-      </main>
-    </div>
+    </>
   );
 }
 

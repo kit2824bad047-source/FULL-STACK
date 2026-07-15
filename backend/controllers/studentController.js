@@ -1,7 +1,28 @@
 const Student = require('../models/Student');
 const Job = require('../models/Job');
+const sendEmail = require('../utils/sendEmail');
+const { body, validationResult } = require('express-validator');
 
-exports.getStudentProfile = async (req, res) => {
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: errors.array().map(error => ({ field: error.path, message: error.msg }))
+    });
+  }
+  next();
+};
+
+exports.updateStudentProfileValidation = [
+  body('name').optional({ values: 'falsy' }).trim().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional({ values: 'falsy' }).trim().isEmail().withMessage('Please provide a valid email'),
+  body('phone').optional({ values: 'falsy' }).trim().matches(/^\+?[0-9\s-]{7,15}$/).withMessage('Please provide a valid phone number'),
+  body('cgpa').optional({ values: 'falsy' }).isFloat({ min: 0, max: 10 }).withMessage('CGPA must be between 0 and 10'),
+  handleValidationErrors
+];
+
+exports.getStudentProfile = async (req, res, next) => {
   try {
     const student = await Student.findById(req.user.id);
     if (!student) {
@@ -9,11 +30,11 @@ exports.getStudentProfile = async (req, res) => {
     }
     res.json(student);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.updateStudentProfile = async (req, res) => {
+exports.updateStudentProfile = async (req, res, next) => {
   try {
     const student = await Student.findByIdAndUpdate(
       req.user.id,
@@ -22,11 +43,11 @@ exports.updateStudentProfile = async (req, res) => {
     );
     res.json({ message: 'Profile updated successfully', student });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.uploadProfilePicture = async (req, res) => {
+exports.uploadProfilePicture = async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -45,11 +66,11 @@ exports.uploadProfilePicture = async (req, res) => {
       profilePicture: profilePicturePath
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.getApplications = async (req, res) => {
+exports.getApplications = async (req, res, next) => {
   try {
     const jobs = await Job.find({ 'applicants.student': req.user.id })
       .populate('company', 'companyName email phone logo')
@@ -76,11 +97,11 @@ exports.getApplications = async (req, res) => {
 
     res.json(applications);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.withdrawApplication = async (req, res) => {
+exports.withdrawApplication = async (req, res, next) => {
   try {
     const { jobId } = req.params;
 
@@ -103,11 +124,11 @@ exports.withdrawApplication = async (req, res) => {
 
     res.json({ message: 'Application withdrawn successfully' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.updateApplication = async (req, res) => {
+exports.updateApplication = async (req, res, next) => {
   try {
     const { jobId } = req.params;
     const { coverLetter, resume, email, phone } = req.body;
@@ -134,11 +155,11 @@ exports.updateApplication = async (req, res) => {
     await job.save();
     res.json({ message: 'Application updated successfully' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.getBrowseJobs = async (req, res) => {
+exports.getBrowseJobs = async (req, res, next) => {
   try {
     const jobs = await Job.find({ company: { $ne: null } })
       .populate('company', 'companyName email phone logo companyWebsite')
@@ -146,11 +167,11 @@ exports.getBrowseJobs = async (req, res) => {
 
     res.json(jobs);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.applyForJob = async (req, res) => {
+exports.applyForJob = async (req, res, next) => {
   try {
     const { jobId, coverLetter, resume, email, phone } = req.body;
 
@@ -188,13 +209,40 @@ exports.applyForJob = async (req, res) => {
       { new: true }
     );
 
+    // Send email to recruiter
+    const jobWithCompany = await Job.findById(jobId).populate('company');
+    if (jobWithCompany && jobWithCompany.company && jobWithCompany.company.email) {
+      const message = `Hello ${jobWithCompany.company.companyName},\n\nA new student (${student.name}) has just applied for your job posting: "${jobWithCompany.title}".\n\nPlease log in to your dashboard to review their application.\n\nBest,\nCampus Placement System Team`;
+      
+      await sendEmail({
+        email: jobWithCompany.company.email,
+        subject: `New Application Received for ${jobWithCompany.title}`,
+        message
+      });
+    }
+
+    // Send email to student confirming application
+    try {
+      if (student && student.email) {
+        const studentMessage = `Hello ${student.name},\n\nYou have successfully applied for the role: "${jobWithCompany.title}" at ${jobWithCompany.company.companyName}.\n\nYou can track the status of your application on your dashboard.\n\nBest,\nCampus Placement System Team`;
+        
+        await sendEmail({
+          email: student.email,
+          subject: `Application Successful: ${jobWithCompany.title}`,
+          message: studentMessage
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send student confirmation email:', emailError);
+    }
+
     res.json({ message: 'Applied for job successfully', student });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.getDashboardStats = async (req, res) => {
+exports.getDashboardStats = async (req, res, next) => {
   try {
     const mongoose = require('mongoose');
     const studentId = new mongoose.Types.ObjectId(req.user.id);
@@ -254,6 +302,6 @@ exports.getDashboardStats = async (req, res) => {
       rejected: rejectedCount
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };

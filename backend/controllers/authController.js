@@ -3,8 +3,45 @@ const Recruiter = require('../models/Recruiter');
 const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
 
-exports.register = async (req, res) => {
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: errors.array().map(error => ({ field: error.path, message: error.msg }))
+    });
+  }
+  next();
+};
+
+exports.registerValidation = [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').trim().isEmail().withMessage('Please provide a valid email'),
+  body('password')
+    .trim()
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Password must include uppercase, lowercase, and a number'),
+  body('userType').isIn(['student', 'recruiter']).withMessage('Invalid user type'),
+  body('companyName').custom((value, { req }) => {
+    if (req.body.userType === 'recruiter' && (!value || !value.trim())) {
+      throw new Error('Company name is required for recruiters');
+    }
+    return true;
+  }),
+  handleValidationErrors
+];
+
+exports.loginValidation = [
+  body('email').trim().isEmail().withMessage('Please provide a valid email'),
+  body('password').trim().notEmpty().withMessage('Password is required'),
+  body('userType').isIn(['student', 'recruiter', 'admin']).withMessage('Invalid user type'),
+  handleValidationErrors
+];
+
+exports.register = async (req, res, next) => {
   try {
     const { name, email, password, userType, companyName } = req.body;
 
@@ -54,15 +91,11 @@ exports.register = async (req, res) => {
       user: { id: user._id, email: user.email, name: user.name, userType },
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    next(error);
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password, userType } = req.body;
 
@@ -99,7 +132,7 @@ exports.login = async (req, res) => {
       user: { id: user._id, email: user.email, name: user.name, userType },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 

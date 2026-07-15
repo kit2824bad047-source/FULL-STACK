@@ -155,13 +155,21 @@ function RecruiterApplicants() {
 
     const getDocUrl = (path) => {
         if (!path) return '#';
+        
+        // If it's already an external URL (http/https), return as-is
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        
+        // Otherwise, treat as local file path
         // Normalize path: replace backslashes with forward slashes
         let cleanPath = path.replace(/\\/g, '/');
         // Ensure leading slash
         if (!cleanPath.startsWith('/')) {
             cleanPath = `/${cleanPath}`;
         }
-        return `http://localhost:5000${cleanPath}`;
+        const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:5000';
+        return `${baseUrl}${cleanPath}`;
     };
 
     const getStatusClass = (status) => {
@@ -169,33 +177,8 @@ function RecruiterApplicants() {
     };
 
     return (
-        <div className="recruiter-dashboard-container">
-            {/* ... sidebar ... */}
-            <aside className="dashboard-sidebar">
-                <div className="sidebar-brand">
-                    <h2>Recruiter<span>Pro</span></h2>
-                </div>
-                <nav className="sidebar-nav">
-                    <Link to="/recruiter-dashboard" className="nav-item">
-                        <span className="nav-icon">📊</span> Dashboard
-                    </Link>
-                    <Link to="/recruiter/jobs" className="nav-item">
-                        <span className="nav-icon">📝</span> Post Jobs
-                    </Link>
-                    <Link to="/recruiter/applicants" className="nav-item active">
-                        <span className="nav-icon">👥</span> Applicants
-                    </Link>
-                    <Link to="/recruiter/profile" className="nav-item">
-                        <span className="nav-icon">🏢</span> Company
-                    </Link>
-                    <Link to="/recruiter/stats" className="nav-item">
-                        <span className="nav-icon">📈</span> Analytics
-                    </Link>
-                </nav>
-            </aside>
-
-            <main className="dashboard-main-content">
-                <header className="dashboard-top-bar">
+        <>
+            <header className="dashboard-top-bar">
                     <div className="welcome-text">
                         <h1>Applicants Management</h1>
                         <p>Review and manage candidate applications for your job postings.</p>
@@ -315,7 +298,6 @@ function RecruiterApplicants() {
                         </div>
                     )}
                 </div>
-            </main>
             {/* Date Selection Modal */}
             {showDateModal && (
                 <div className="modal-overlay" onClick={() => setShowDateModal(false)}>
@@ -340,7 +322,7 @@ function RecruiterApplicants() {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }
 

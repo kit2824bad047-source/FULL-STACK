@@ -55,22 +55,8 @@ function RecruiterProfile() {
   };
 
   return (
-    <div className="recruiter-dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <h2>Recruiter Pro</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/recruiter-dashboard" className="nav-item">📊 Dashboard</Link>
-          <Link to="/recruiter/jobs" className="nav-item">📝 Post Jobs</Link>
-          <Link to="/recruiter/applicants" className="nav-item">👥 Applicants</Link>
-          <Link to="/recruiter/profile" className="nav-item active">🏢 Company</Link>
-          <Link to="/recruiter/stats" className="nav-item">📈 Analytics</Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main-content">
-        <div className="profile-hero">
+    <>
+      <div className="profile-hero">
           <div className="profile-cover">
             <div className="cover-overlay"></div>
           </div>
@@ -152,8 +138,7 @@ function RecruiterProfile() {
             </form>
           </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }
 

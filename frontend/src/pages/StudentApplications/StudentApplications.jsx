@@ -128,6 +128,16 @@ function StudentApplications() {
                                 </div>
 
                                 <div className="application-actions">
+                                    {app.resume && (
+                                        <a
+                                            href={app.resume}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="action-btn view-resume-btn"
+                                        >
+                                            View Resume
+                                        </a>
+                                    )}
                                     <button
                                         className="action-btn edit-btn"
                                         onClick={() => openEditModal(app)}

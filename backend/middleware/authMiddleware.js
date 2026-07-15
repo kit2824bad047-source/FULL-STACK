@@ -12,8 +12,23 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 
+const authorizeRoles = (...allowedRoles) => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const userRole = req.user.userType || req.user.role;
+
+  if (!allowedRoles.includes(userRole)) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  next();
+};
+
 module.exports = authMiddleware;
+module.exports.authorizeRoles = authorizeRoles;

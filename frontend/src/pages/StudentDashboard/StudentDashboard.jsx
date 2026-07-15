@@ -25,22 +25,8 @@ function StudentDashboard() {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <h2>Student Portal</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/student-dashboard" className="nav-item active">📊 Dashboard</Link>
-          <Link to="/student/jobs" className="nav-item">🔍 Browse Jobs</Link>
-          <Link to="/student/applications" className="nav-item">📝 Applications</Link>
-          <Link to="/student/profile" className="nav-item">👤 Profile</Link>
-          <Link to="/student/stats" className="nav-item">📈 Statistics</Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main-content">
-        <div className="dashboard-background">
+    <>
+      <div className="dashboard-background">
           <div className="shape shape-1"></div>
           <div className="shape shape-2"></div>
           <div className="shape shape-3"></div>
@@ -135,8 +121,7 @@ function StudentDashboard() {
             </Link>
           </div>
         </div>
-      </main>
-    </div>
+    </>
   );
 }
 

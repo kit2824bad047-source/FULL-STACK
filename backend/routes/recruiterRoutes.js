@@ -4,12 +4,12 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.post('/create-job', authMiddleware, recruiterController.createJob);
+router.post('/create-job', authMiddleware, recruiterController.createJobValidation, recruiterController.createJob);
 router.get('/job-postings', authMiddleware, recruiterController.getJobPostings);
 router.get('/all-jobs', recruiterController.getAllJobs);
-router.put('/update-status', authMiddleware, recruiterController.updateJobStatus);
+router.put('/update-status', authMiddleware, recruiterController.updateJobStatusValidation, recruiterController.updateJobStatus);
 router.get('/profile', authMiddleware, recruiterController.getRecruiterProfile);
-router.put('/profile', authMiddleware, recruiterController.updateRecruiterProfile);
+router.put('/profile', authMiddleware, recruiterController.updateRecruiterProfileValidation, recruiterController.updateRecruiterProfile);
 router.get('/stats', authMiddleware, recruiterController.getRecruiterStats);
 
 module.exports = router;

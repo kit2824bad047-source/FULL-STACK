@@ -12,6 +12,9 @@ function JobBrowser() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [skillFilter, setSkillFilter] = useState('');
+  const [cgpaFilter, setCgpaFilter] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -34,29 +37,30 @@ function JobBrowser() {
   };
 
   const filteredJobs = useMemo(() => {
-    // console.log('Filtering jobs. Search:', searchTerm, 'Type:', filterType);
     return jobs.filter(job => {
-      if (!searchTerm) {
-        return filterType === 'all' || job.jobType === filterType;
-      }
-
-      const searchTerms = searchTerm.toLowerCase().trim().split(/\s+/);
+      const normalizedSearch = searchTerm.toLowerCase().trim();
+      const normalizedLocation = locationFilter.toLowerCase().trim();
+      const normalizedSkill = skillFilter.toLowerCase().trim();
+      const minCgpa = Number(cgpaFilter);
 
       const title = job.title?.toLowerCase() || '';
       const company = job.company?.companyName?.toLowerCase() || '';
       const description = job.description?.toLowerCase() || '';
+      const location = job.location?.toLowerCase() || '';
+      const requiredSkills = Array.isArray(job.requiredSkills)
+        ? job.requiredSkills.join(' ').toLowerCase()
+        : (job.requiredSkills || '').toString().toLowerCase();
 
-      // Combine all searchable text
-      const searchableText = `${title} ${company} ${description}`;
-
-      // Check if EVERY search word is present in the job's text
-      const matchesSearch = searchTerms.every(term => searchableText.includes(term));
-
+      const searchableText = `${title} ${company} ${description} ${requiredSkills}`;
+      const matchesSearch = !normalizedSearch || searchableText.includes(normalizedSearch);
+      const matchesLocation = !normalizedLocation || location.includes(normalizedLocation);
+      const matchesSkill = !normalizedSkill || requiredSkills.includes(normalizedSkill);
       const matchesType = filterType === 'all' || job.jobType === filterType;
+      const matchesCgpa = Number.isNaN(minCgpa) || !job.minCGPA || Number(job.minCGPA) <= minCgpa;
 
-      return matchesSearch && matchesType;
+      return matchesSearch && matchesLocation && matchesSkill && matchesType && matchesCgpa;
     });
-  }, [jobs, searchTerm, filterType]);
+  }, [jobs, searchTerm, locationFilter, skillFilter, cgpaFilter, filterType]);
 
   const handleApplyClick = (job) => {
     setSelectedJob(job);
@@ -79,22 +83,8 @@ function JobBrowser() {
   };
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <h2>Student Portal</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/student-dashboard" className="nav-item">📊 Dashboard</Link>
-          <Link to="/student/jobs" className="nav-item active">🔍 Browse Jobs</Link>
-          <Link to="/student/applications" className="nav-item">📝 Applications</Link>
-          <Link to="/student/profile" className="nav-item">👤 Profile</Link>
-          <Link to="/student/stats" className="nav-item">📈 Statistics</Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main-content">
-        <div className="job-browser-header">
+    <>
+      <div className="job-browser-header">
           <div className="header-title">
             <h1>Browse Jobs</h1>
             <p>Find your next career opportunity</p>
@@ -106,23 +96,55 @@ function JobBrowser() {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Search by Job Role, Company Name..."
+              placeholder="Search by role, company, or skill"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
           </div>
-          <div className="filter-box">
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Job Types</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Internship">Internship</option>
-            </select>
+          <div className="filter-grid">
+            <div className="filter-box">
+              <input
+                type="text"
+                placeholder="Location"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="filter-input"
+              />
+            </div>
+            <div className="filter-box">
+              <input
+                type="text"
+                placeholder="Skill (e.g. React)"
+                value={skillFilter}
+                onChange={(e) => setSkillFilter(e.target.value)}
+                className="filter-input"
+              />
+            </div>
+            <div className="filter-box">
+              <input
+                type="number"
+                min="0"
+                max="10"
+                step="0.1"
+                placeholder="Max CGPA"
+                value={cgpaFilter}
+                onChange={(e) => setCgpaFilter(e.target.value)}
+                className="filter-input"
+              />
+            </div>
+            <div className="filter-box">
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="filter-select"
+              >
+                <option value="all">All Job Types</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Internship">Internship</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -190,7 +212,7 @@ function JobBrowser() {
               ) : (
                 <div className="no-jobs">
                   <p>No jobs found matching "{searchTerm}"</p>
-                  <button onClick={() => { setSearchTerm(''); setFilterType('all'); }} style={{ marginTop: '1rem', color: '#3498db', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                  <button onClick={() => { setSearchTerm(''); setLocationFilter(''); setSkillFilter(''); setCgpaFilter(''); setFilterType('all'); }} style={{ marginTop: '1rem', color: '#3498db', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                     Clear all filters
                   </button>
                 </div>
@@ -208,8 +230,7 @@ function JobBrowser() {
             user={user}
           />
         )}
-      </main>
-    </div>
+    </>
   );
 }
 
